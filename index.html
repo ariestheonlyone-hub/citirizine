@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CITIRIZINE 3D</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;background:#111}
+canvas{display:block}
+#accountScreen{
+ position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;
+ background:rgba(8,14,22,.9);color:#fff
+}
+.account-card{
+ width:min(430px,90vw);padding:30px;border-radius:22px;background:#182732;
+ box-shadow:0 20px 70px #0008;text-align:center
+}
+.account-card h1{font-size:38px;margin:0 0 5px}
+.account-card p{color:#bfd0d7}
+.account-card input{
+ width:100%;padding:13px;margin:8px 0;border:1px solid #547080;border-radius:10px;
+ background:#0e1820;color:white;font-size:16px
+}
+button{
+ border:0;border-radius:10px;padding:12px 18px;background:#3aa889;color:white;
+ font-weight:bold;cursor:pointer
+}
+button:hover{filter:brightness(1.12)}
+#error{height:20px;color:#ffaaaa;font-size:13px}
+#menu{
+ position:fixed;inset:0;z-index:10;display:none;align-items:center;justify-content:center;
+ background:linear-gradient(#07101a99,#07101acc);color:white;text-align:center
+}
+#menu h1{font-size:min(90px,13vw);letter-spacing:7px;margin:0 0 8px}
+#menu p{color:#d4e4e9}
+.menuBtn{display:block;width:250px;margin:13px auto;font-size:18px}
+#gender{
+ position:fixed;inset:0;z-index:11;display:none;align-items:center;justify-content:center;
+ background:#08121dcc;color:white;text-align:center
+}
+.gender-card{width:min(700px,92vw);padding:25px;border-radius:22px;background:#172732}
+.gender-grid{display:flex;gap:22px;justify-content:center;flex-wrap:wrap}
+.genderChoice{
+ width:260px;height:210px;border-radius:18px;border:2px solid #42606c;background:#223946;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer
+}
+.genderChoice:hover{background:#2e4b59}
+.charPreview{height:130px}
+#chat{
+ position:fixed;left:14px;top:14px;z-index:5;width:310px;max-width:40vw;
+ background:#0b151dcc;color:white;border:1px solid #ffffff1f;border-radius:14px;overflow:hidden
+}
+#chatHeader{padding:10px 12px;background:#315363;font-weight:bold}
+#messages{height:130px;overflow:auto;padding:8px}
+.msg{font-size:13px;margin:5px 0;padding:6px 8px;border-radius:8px;background:#ffffff0d}
+.msg b{color:#8de0bd}
+#chatForm{display:flex;gap:6px;padding:8px}
+#chatInput{flex:1;min-width:0;border:0;border-radius:8px;padding:9px;background:#17252f;color:white}
+#chatForm button{padding:0 12px}
+#identity{
+ position:fixed;right:14px;top:14px;z-index:5;padding:8px 11px;
+ background:#0009;color:white;border-radius:10px;font-size:13px
+}
+#help{
+ position:fixed;bottom:15px;left:50%;transform:translateX(-50%);z-index:5;
+ background:#0009;color:#fff;padding:9px 14px;border-radius:12px;font-size:13px
+}
+#qualityBadge{
+ position:fixed;right:14px;bottom:14px;z-index:5;background:#0008;color:#d8e8ec;
+ padding:7px 10px;border-radius:9px;font-size:11px
+}
+#gameUI{display:none}
+
+#topTools{
+ position:fixed;left:14px;top:14px;z-index:7;display:none;gap:7px;
+}
+.toolBtn{
+ width:42px;height:42px;padding:0;border-radius:11px;background:#0b151ddd;
+ border:1px solid #ffffff22;color:white;font-size:19px;cursor:pointer
+}
+.toolBtn:hover{background:#294653}
+#settingsModal,#musicModal{
+ position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;
+ background:#0009;color:white
+}
+.settingsCard,.musicCard{
+ width:min(440px,90vw);padding:26px;border-radius:20px;background:#172732;
+ box-shadow:0 20px 70px #0009
+}
+.settingsCard h2,.musicCard h2{margin-top:0}
+.settingRow{margin:18px 0}
+.settingRow label{display:block;margin-bottom:7px;color:#cfe0e5}
+.settingRow input[type=range]{width:100%}
+.settingRow input[type=text]{
+ width:100%;padding:11px;border-radius:9px;border:1px solid #547080;
+ background:#0e1820;color:white
+}
+.modalButtons{text-align:right;margin-top:20px}
+.modalButtons button{margin-left:7px}
+#playerList{
+ margin-top:15px;padding:10px;border-radius:10px;background:#ffffff0a;
+ font-size:13px;color:#bfd0d7
+}
+
+</style>
+</head>
+<body>
+
+<div id="accountScreen">
+  <div class="account-card">
+    <h1>CITIRIZINE</h1>
+    <p>Create your student identity</p>
+    <input id="nameInput" maxlength="20" placeholder="Your name" autocomplete="off">
+    <input id="passInput" type="password" maxlength="30" placeholder="Create a password">
+    <input id="passConfirm" type="password" maxlength="30" placeholder="Confirm password">
+    <div id="error"></div>
+    <button id="createAccount">CREATE IDENTITY</button>
+    <p style="font-size:11px">Prototype account only. Do not use a real password.</p>
+  </div>
+</div>
+
+<div id="menu">
+  <div>
+    <h1>CITIRIZINE</h1>
+    <p>3D Philippine Classroom</p>
+    <button class="menuBtn" id="playBtn">PLAY</button>
+    <button class="menuBtn" id="continueBtn">CONTINUE</button>
+  </div>
+</div>
+
+<div id="gender">
+  <div class="gender-card">
+    <h2>CHOOSE YOUR STUDENT</h2>
+    <p>Choose your character before entering the empty classroom.</p>
+    <div class="gender-grid">
+      <div class="genderChoice" data-gender="male">
+        <canvas class="charPreview" width="120" height="130"></canvas>
+        <b>MALE STUDENT</b>
+      </div>
+      <div class="genderChoice" data-gender="female">
+        <canvas class="charPreview" width="120" height="130"></canvas>
+        <b>FEMALE STUDENT</b>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="topTools">
+  <button class="toolBtn" id="musicBtn" title="Music">🎵</button>
+  <button class="toolBtn" id="menuBtn" title="Back to menu">☰</button>
+  <button class="toolBtn" id="settingsBtn" title="Settings">⚙️</button>
+</div>
+
+<div id="musicModal">
+  <div class="musicCard">
+    <h2>🎵 Music</h2>
+    <p>Play relaxing classroom background music.</p>
+    <button id="musicToggle">▶ PLAY MUSIC</button>
+    <div class="modalButtons"><button id="musicClose">CLOSE</button></div>
+  </div>
+</div>
+
+<div id="settingsModal">
+  <div class="settingsCard">
+    <h2>⚙️ Settings</h2>
+    <div class="settingRow">
+      <label>Mouse Sensitivity: <span id="sensValue">0.50</span></label>
+      <input id="sensRange" type="range" min="0.10" max="1.00" step="0.05" value="0.50">
+    </div>
+    <div class="settingRow">
+      <label>Volume: <span id="volumeValue">70%</span></label>
+      <input id="volumeRange" type="range" min="0" max="1" step="0.05" value="0.70">
+    </div>
+    <div class="settingRow">
+      <label>Username</label>
+      <input id="usernameSetting" type="text" maxlength="20">
+    </div>
+    <div id="playerList">👥 Each player can create their own identity and enter the classroom.</div>
+    <div class="modalButtons">
+      <button id="saveSettings">SAVE</button>
+      <button id="settingsClose">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<div id="qualityBadge">3D • Detailed Classroom</div>
+<div id="gameUI">
+  <div id="chat">
+    <div id="chatHeader">💬 Classroom Chat <span style="float:right;color:#8de0bd;font-size:11px">● ONLINE</span></div>
+    <div id="messages"><div class="msg"><b>System:</b> Welcome to your classroom!</div></div>
+    <form id="chatForm">
+      <input id="chatInput" maxlength="120" placeholder="Type a message..." autocomplete="off">
+      <button>Send</button>
+    </form>
+  </div>
+  <div id="identity"></div>
+  <div id="help">WASD / Arrow Keys to move • Mouse to look • Shift to run</div>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const accountScreen=document.getElementById("accountScreen");
+const menu=document.getElementById("menu");
+const gender=document.getElementById("gender");
+const gameUI=document.getElementById("gameUI");
+const nameInput=document.getElementById("nameInput");
+const passInput=document.getElementById("passInput");
+const passConfirm=document.getElementById("passConfirm");
+const error=document.getElementById("error");
+const identity=document.getElementById("identity");
+
+let username="";
+let chosenGender="";
+let sensitivity=parseFloat(localStorage.getItem("citirizineSensitivity")||"0.50");
+let masterVolume=parseFloat(localStorage.getItem("citirizineVolume")||"0.70");
+let musicOn=false;
+let musicTimer=null;
+
+let scene,camera,renderer,controls,player,clock;
+let started=false;
+const keys={};
+
+function beep(freq=440,duration=.07,type="square",volume=.025){
+  volume*=masterVolume;
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!window.audioCtx) window.audioCtx=new AC();
+  const a=window.audioCtx;
+  if(a.state==="suspended") a.resume();
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type;o.frequency.value=freq;
+  g.gain.setValueAtTime(volume,a.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,a.currentTime+duration);
+  o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+duration);
+}
+
+function createAccount(){
+  const name=nameInput.value.trim(), pass=passInput.value, confirm=passConfirm.value;
+  if(name.length<2){error.textContent="Enter a name with at least 2 characters.";return}
+  if(pass.length<4){error.textContent="Password must be at least 4 characters.";return}
+  if(pass!==confirm){error.textContent="Passwords do not match.";return}
+  username=name;
+  localStorage.setItem("citirizineUser",username);
+  accountScreen.style.display="none";
+  menu.style.display="flex";
+  beep(550,.08);
+}
+document.getElementById("createAccount").onclick=createAccount;
+
+document.getElementById("playBtn").onclick=()=>{
+  beep(650,.07);menu.style.display="none";gender.style.display="flex";
+};
+document.getElementById("continueBtn").onclick=()=>{
+  beep(500,.07);menu.style.display="none";gender.style.display="flex";
+};
+
+document.querySelectorAll(".genderChoice").forEach(el=>{
+  el.onclick=()=>{
+    chosenGender=el.dataset.gender;
+    beep(500,.06);beep(720,.08,"sine");
+    gender.style.display="none";
+    gameUI.style.display="block";
+    document.getElementById("topTools").style.display="flex";
+    identity.textContent="👤 "+username+" • "+chosenGender;
+    startGame();
+  };
+});
+
+window.addEventListener("keydown",e=>{
+  keys[e.key.toLowerCase()]=true;
+  if(["arrowup","arrowdown","arrowleft","arrowright"," "].includes(e.key.toLowerCase()))e.preventDefault();
+});
+window.addEventListener("keyup",e=>keys[e.key.toLowerCase()]=false);
+
+function mat(color,rough=.7,extra={}){
+  return new THREE.MeshStandardMaterial({color,roughness:rough,...extra});
+}
+
+function makeCanvasTexture(draw, w=256, h=256){
+  const c=document.createElement("canvas");
+  c.width=w;c.height=h;
+  const x=c.getContext("2d");
+  draw(x,w,h);
+  const t=new THREE.CanvasTexture(c);
+  t.wrapS=t.wrapT=THREE.RepeatWrapping;
+  t.anisotropy=4;
+  return t;
+}
+
+const woodTexture=makeCanvasTexture((x,w,h)=>{
+  x.fillStyle="#7d563c";x.fillRect(0,0,w,h);
+  for(let i=0;i<90;i++){
+    x.strokeStyle=`rgba(45,25,15,${.10+Math.random()*.16})`;
+    x.lineWidth=1+Math.random()*2;x.beginPath();
+    const y=Math.random()*h;
+    x.moveTo(0,y);
+    for(let p=0;p<=w;p+=32)x.lineTo(p,y+Math.sin(p*.035+i)*5);
+    x.stroke();
+  }
+});
+woodTexture.repeat.set(2,1);
+
+const wallTexture=makeCanvasTexture((x,w,h)=>{
+  x.fillStyle="#e7d3bf";x.fillRect(0,0,w,h);
+  for(let i=0;i<900;i++){
+    const v=150+Math.random()*55;
+    x.fillStyle=`rgba(${v},${v-8},${v-18},${.025+Math.random()*.035})`;
+    x.fillRect(Math.random()*w,Math.random()*h,1,1);
+  }
+});
+
+const floorTexture=makeCanvasTexture((x,w,h)=>{
+  x.fillStyle="#806d5b";x.fillRect(0,0,w,h);
+  for(let i=0;i<28;i++){
+    x.strokeStyle="rgba(40,25,15,.18)";x.lineWidth=2;
+    x.beginPath();x.moveTo(0,i*h/28);x.lineTo(w,i*h/28);x.stroke();
+  }
+});
+floorTexture.repeat.set(6,4);
+
+const tileTexture=makeCanvasTexture((x,w,h)=>{
+  x.fillStyle="#d8d2c7";x.fillRect(0,0,w,h);
+  x.strokeStyle="rgba(80,80,80,.18)";x.lineWidth=3;
+  for(let i=0;i<=8;i++){x.beginPath();x.moveTo(i*w/8,0);x.lineTo(i*w/8,h);x.stroke()}
+  for(let i=0;i<=8;i++){x.beginPath();x.moveTo(0,i*h/8);x.lineTo(w,i*h/8);x.stroke()}
+});
+tileTexture.repeat.set(4,3);
+
+function labelSprite(text){
+  const c=document.createElement("canvas"); c.width=512;c.height=128;
+  const x=c.getContext("2d");
+  x.clearRect(0,0,c.width,c.height);
+  x.font="bold 42px Arial";x.textAlign="center";x.textBaseline="middle";
+  x.lineWidth=9;x.strokeStyle="rgba(0,0,0,.75)";x.strokeText(text,256,64);
+  x.fillStyle="#ffffff";x.fillText(text,256,64);
+  const tex=new THREE.CanvasTexture(c);
+  const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
+  spr.scale.set(1.8,.45,1);
+  return spr;
+}
+
+function box(w,h,d,color,x,y,z,materialOverride=null){
+  const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),materialOverride||mat(color));
+  m.position.set(x,y,z);
+  m.castShadow=true;m.receiveShadow=true;
+  scene.add(m);return m;
+}
+
+function makeClassroom(){
+  scene.background=new THREE.Color(0xb7c6c9);
+
+  // Detailed floor, walls, and ceiling textures
+  box(22,.25,16,0x806f60,0,0,0,new THREE.MeshStandardMaterial({
+    map:floorTexture,roughness:.85
+  }));
+  box(22,7,.25,0xe9d4c1,0,3.5,-8,new THREE.MeshStandardMaterial({
+    map:wallTexture,roughness:.9
+  }));
+  box(22,7,.25,0xe9d4c1,0,3.5,8,new THREE.MeshStandardMaterial({
+    map:wallTexture,roughness:.9
+  }));
+  box(.25,7,16,0xe9d4c1,-11,3.5,0,new THREE.MeshStandardMaterial({
+    map:wallTexture,roughness:.9
+  }));
+  box(.25,7,16,0xe9d4c1,11,3.5,0,new THREE.MeshStandardMaterial({
+    map:wallTexture,roughness:.9
+  }));
+  box(22,.2,16,0xf2eee5,0,7.1,0,new THREE.MeshStandardMaterial({
+    map:tileTexture,roughness:.95
+  }));
+
+  // Baseboards and wall trim
+  box(22,.18,.15,0x8a684e,0,.25,-7.84);
+  box(22,.18,.15,0x8a684e,0,.25,7.84);
+  box(.15,.18,16,0x8a684e,-10.84,.25,0);
+  box(.15,.18,16,0x8a684e,10.84,.25,0);
+
+  // Front blackboard
+  box(13,3.0,.12,0x244f45,0,4.0,-7.82);
+  box(13.5,.12,.22,0x8b684d,0,2.48,-7.78,
+    new THREE.MeshStandardMaterial({map:woodTexture,roughness:.75}));
+  // teacher desk, but no people
+  box(2.7,.85,1.2,0x754f36,0,1.0,-6.2);
+  box(.12,1.0,.12,0x5d3e2b,-1.1,.5,-5.75);
+  box(.12,1.0,.12,0x5d3e2b,1.1,.5,-5.75);
+  box(.12,1.0,.12,0x5d3e2b,-1.1,.5,-6.65);
+  box(.12,1.0,.12,0x5d3e2b,1.1,.5,-6.65);
+
+  // Desks arranged around an empty central area
+  for(let row=0;row<3;row++){
+    for(let col=-2;col<=2;col++){
+      const x=col*3.0;
+      const z=-2+row*3.0;
+      makeDesk(x,z);
+    }
+  }
+
+  // Windows on side walls
+  for(const z of [-5,0,5]){
+    makeWindow(-10.84,3.9,z,Math.PI/2);
+    makeWindow(10.84,3.9,z,-Math.PI/2);
+  }
+
+  // fluorescent ceiling lights
+  for(const x of [-7,-2.3,2.3,7]){
+    box(2.5,.08,.28,0xffffff,x,6.95,0);
+  }
+
+  // wall posters
+  makePoster(-10.84,4.8,-2,Math.PI/2);
+  makePoster(10.84,4.8,2,-Math.PI/2);
+
+  // Philippine-classroom-inspired details: flag-colored bulletin board, clock, bins, and plants
+  box(4.8,1.8,.10,0x6e8f92,5.8,4.3,-7.72);
+  box(4.5,1.5,.05,0xe9dfc9,5.8,4.3,-7.64);
+
+  // wall clock
+  const clockGroup=new THREE.Group();
+  const clockFace=new THREE.Mesh(
+    new THREE.CylinderGeometry(.55,.55,.10,32),
+    new THREE.MeshStandardMaterial({color:0xf5f0df})
+  );
+  clockFace.rotation.x=Math.PI/2;clockGroup.add(clockFace);
+  const hand1=box(.04,.32,.04,0x222222,0,.18,.06);
+  const hand2=box(.04,.20,.04,0x222222,0,.30,.07);
+  hand1.position.set(0,.18,.07);hand2.position.set(.14,.30,.08);
+  clockGroup.add(hand1,hand2);
+  clockGroup.position.set(-5.5,5.0,-7.65);
+  clockGroup.rotation.x=Math.PI/2;
+  scene.add(clockGroup);
+
+  // recycling/utility bins
+  box(.65,.9,.65,0x477a73,8.9,.45,-6.9);
+  box(.65,.9,.65,0x7b8d43,9.7,.45,-6.9);
+
+  // small potted plants
+  for(const px of [-9.5,9.5]){
+    box(.45,.55,.45,0x9a6244,px,.28,-6.9);
+    const leaves=new THREE.Mesh(
+      new THREE.SphereGeometry(.48,10,8),
+      new THREE.MeshStandardMaterial({color:0x4f7d50,roughness:.9})
+    );
+    leaves.position.set(px,.85,-6.9);scene.add(leaves);
+  }
+}
+
+function makeDesk(x,z){
+  box(1.45,.14,1.0,0x8a5c3b,x,1.15,z,
+    new THREE.MeshStandardMaterial({map:woodTexture,roughness:.78}));
+  box(.11,1.1,.11,0x65442f,x-.55,.55,z-.34);
+  box(.11,1.1,.11,0x65442f,x+.55,.55,z-.34);
+  box(.11,1.1,.11,0x65442f,x-.55,.55,z+.34);
+  box(.11,1.1,.11,0x65442f,x+.55,.55,z+.34);
+  // chair
+  box(1.0,.12,.65,0x7c5135,x,1.0,z+1.0);
+  box(.1,1.0,.1,0x5e3d2a,x-.4,.5,z+1.0);
+  box(.1,1.0,.1,0x5e3d2a,x+.4,.5,z+1.0);
+}
+
+function makeWindow(x,y,z,rot){
+  const glass=box(.05,1.8,2.0,0x9bd3dd,x+(rot>0?.08:-.08),y,z,
+    new THREE.MeshPhysicalMaterial({
+      color:0x9bd3dd,transparent:true,opacity:.48,roughness:.12,metalness:.05
+    }));
+  glass.rotation.y=rot;
+  const frame=box(.12,2.25,2.45,0x2e6f6b,x,y,z);
+  frame.rotation.y=rot;
+  // center mullion
+  const mullion=box(.14,2.1,.10,0x2e6f6b,x+(rot>0?.12:-.12),y,z);
+  mullion.rotation.y=rot;
+}
+
+function makePoster(x,y,z,rot){
+  const p=box(.05,1.1,.8,0xf3ead1,x,y,z);
+  p.rotation.y=rot;
+}
+
+function makeCharacter(g){
+  const root=new THREE.Group();
+
+  const skin=mat(0xc98e70), white=mat(0xf1eee6), blue=mat(0x456c7c);
+  const dark=mat(0x252326), pants=mat(0x354e5c), shoes=mat(0x18191a);
+
+  const torso=new THREE.Mesh(new THREE.BoxGeometry(.8,1.15,.48),white);
+  torso.position.y=1.65;root.add(torso);
+
+  // blue uniform trim
+  const trim=new THREE.Mesh(new THREE.BoxGeometry(.82,.13,.50),blue);
+  trim.position.y=2.14;root.add(trim);
+
+  // collar
+  const collarL=new THREE.Mesh(new THREE.BoxGeometry(.18,.08,.22),white);
+  collarL.rotation.z=-.35;collarL.position.set(-.13,2.02,.27);root.add(collarL);
+  const collarR=collarL.clone();collarR.rotation.z=.35;collarR.position.x=.13;root.add(collarR);
+
+  const head=new THREE.Mesh(new THREE.SphereGeometry(.38,20,16),skin);
+  head.position.y=2.55;root.add(head);
+
+  const hair=new THREE.Mesh(new THREE.SphereGeometry(.40,20,12,0,Math.PI*2,0,Math.PI*.52),dark);
+  hair.position.y=2.66;root.add(hair);
+
+  if(g==="female"){
+    const hairBack=new THREE.Mesh(new THREE.CylinderGeometry(.42,.48,.75,20),dark);
+    hairBack.position.set(0,2.35,-.06);root.add(hairBack);
+  }
+
+  // legs
+  if(g==="female"){
+    const skirt=new THREE.Mesh(new THREE.CylinderGeometry(.48,.58,.62,4),pants);
+    skirt.position.y=.95;skirt.rotation.y=Math.PI/4;root.add(skirt);
+    addLeg(root,-.18,.58);addLeg(root,.18,.58);
+  }else{
+    addLeg(root,-.22,.68);addLeg(root,.22,.68);
+  }
+
+  // arms
+  const armL=addArm(root,-.52,1.65),armR=addArm(root,.52,1.65);
+  root.userData.armL=armL;root.userData.armR=armR;
+  root.userData.legs=root.children.filter(o=>o.userData.leg);
+  const nameTag=labelSprite(username||"Student");
+  nameTag.position.set(0,3.35,0);
+  root.add(nameTag);
+  root.userData.nameTag=nameTag;
+
+  return root;
+
+  function addLeg(parent,x,y){
+    const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.13,.55,5,10),pants);
+    leg.position.set(x,y,0);leg.userData.leg=true;parent.add(leg);
+    const shoe=new THREE.Mesh(new THREE.BoxGeometry(.28,.12,.48),shoes);
+    shoe.position.set(x,.25,.08);parent.add(shoe);
+  }
+  function addArm(parent,x,y){
+    const arm=new THREE.Mesh(new THREE.CapsuleGeometry(.11,.58,5,10),white);
+    arm.position.set(x,y,0);arm.rotation.z=x>0?-.08:.08;parent.add(arm);return arm;
+  }
+}
+
+function init3D(){
+  scene=new THREE.Scene();
+  clock=new THREE.Clock();
+
+  camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);
+  camera.position.set(0,4.8,6.8);
+
+  renderer=new THREE.WebGLRenderer({antialias:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.shadowMap.enabled=true;
+  renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace=THREE.SRGBColorSpace;
+  renderer.toneMapping=THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure=1.05;
+  document.body.appendChild(renderer.domElement);
+
+  const hemi=new THREE.HemisphereLight(0xeaf6ff,0x6c5b4d,2.25);
+  scene.add(hemi);
+  for(const x of [-7,-2.3,2.3,7]){
+    const ceilingLight=new THREE.PointLight(0xfff5dd,22,8,2);
+    ceilingLight.position.set(x,6.6,0);
+    ceilingLight.castShadow=true;
+    scene.add(ceilingLight);
+  }
+  const light=new THREE.DirectionalLight(0xffffff,2.0);
+  light.position.set(2,7,4);light.castShadow=true;scene.add(light);
+
+  makeClassroom();
+
+  player=makeCharacter(chosenGender);
+  player.position.set(0,.15,5.2);
+  scene.add(player);
+
+  controls=new OrbitControls(camera,renderer.domElement);
+  controls.enablePan=false;
+  controls.enableDamping=true;
+  controls.rotateSpeed=sensitivity*1.5;
+  controls.minDistance=4;
+  controls.maxDistance=8;
+  controls.minPolarAngle=.75;
+  controls.maxPolarAngle=1.45;
+  controls.target.set(0,1.7,5.2);
+  controls.enabled=true;
+
+  window.addEventListener("resize",resize3D);
+  animate();
+}
+
+function resize3D(){
+  if(!camera)return;
+  camera.aspect=innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);
+}
+
+function startGame(){
+  if(!started){started=true;init3D();}
+}
+
+function updatePlayer(dt){
+  if(!player)return;
+  let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
+  let dz=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
+  const moving=dx||dz;
+  if(!moving){
+    player.userData.armL.rotation.z=0.08;
+    player.userData.armR.rotation.z=-0.08;
+    return;
+  }
+  const len=Math.hypot(dx,dz);dx/=len;dz/=len;
+  const speed=(keys.shift?4.8:2.7)*dt;
+  player.position.x+=dx*speed;
+  player.position.z+=dz*speed;
+  player.position.x=THREE.MathUtils.clamp(player.position.x,-9.3,9.3);
+  player.position.z=THREE.MathUtils.clamp(player.position.z,-6.8,6.8);
+
+  player.rotation.y=Math.atan2(dx,dz);
+
+  const t=clock.elapsedTime*9;
+  const swing=Math.sin(t)*.45;
+  player.userData.armL.rotation.x=swing;
+  player.userData.armR.rotation.x=-swing;
+  for(let i=0;i<player.userData.legs.length;i++){
+    player.userData.legs[i].rotation.x=(i%2? -swing:swing);
+  }
+  if(Math.floor(t*2)%8===0 && Math.random()<.03)beep(110,.035,"triangle",.012);
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.05);
+  updatePlayer(dt);
+  if(player){
+    controls.target.lerp(new THREE.Vector3(player.position.x,1.6,player.position.z),.08);
+    if(player.userData.nameTag) player.userData.nameTag.quaternion.copy(camera.quaternion);
+  }
+  controls.update();
+  renderer.render(scene,camera);
+}
+
+
+// Top-left game tools
+const topTools=document.getElementById("topTools");
+const settingsModal=document.getElementById("settingsModal");
+const musicModal=document.getElementById("musicModal");
+const sensRange=document.getElementById("sensRange");
+const volumeRange=document.getElementById("volumeRange");
+const sensValue=document.getElementById("sensValue");
+const volumeValue=document.getElementById("volumeValue");
+const usernameSetting=document.getElementById("usernameSetting");
+
+sensRange.value=sensitivity;
+volumeRange.value=masterVolume;
+sensValue.textContent=sensitivity.toFixed(2);
+volumeValue.textContent=Math.round(masterVolume*100)+"%";
+
+document.getElementById("musicBtn").onclick=()=>{
+  musicModal.style.display="flex"; beep(600,.05);
+};
+document.getElementById("musicClose").onclick=()=>{
+  musicModal.style.display="none";
+};
+document.getElementById("settingsBtn").onclick=()=>{
+  usernameSetting.value=username;
+  sensRange.value=sensitivity;
+  volumeRange.value=masterVolume;
+  sensValue.textContent=sensitivity.toFixed(2);
+  volumeValue.textContent=Math.round(masterVolume*100)+"%";
+  settingsModal.style.display="flex"; beep(520,.05);
+};
+sensRange.oninput=()=>{
+  sensitivity=parseFloat(sensRange.value);
+  sensValue.textContent=sensitivity.toFixed(2);
+  if(controls) controls.rotateSpeed=sensitivity*1.5;
+};
+volumeRange.oninput=()=>{
+  masterVolume=parseFloat(volumeRange.value);
+  volumeValue.textContent=Math.round(masterVolume*100)+"%";
+};
+document.getElementById("settingsClose").onclick=()=>{
+  settingsModal.style.display="none";
+};
+document.getElementById("saveSettings").onclick=()=>{
+  const newName=usernameSetting.value.trim();
+  if(newName.length>=2){
+    username=newName;
+    localStorage.setItem("citirizineUser",username);
+    identity.textContent="👤 "+username+" • "+chosenGender;
+    if(player && player.userData.nameTag){
+      player.userData.nameTag.material.map.dispose();
+      const fresh=labelSprite(username);
+      fresh.position.copy(player.userData.nameTag.position);
+      player.remove(player.userData.nameTag);
+      player.add(fresh);
+      player.userData.nameTag=fresh;
+    }
+  }
+  localStorage.setItem("citirizineSensitivity",sensitivity);
+  localStorage.setItem("citirizineVolume",masterVolume);
+  settingsModal.style.display="none";
+  beep(700,.06);
+};
+document.getElementById("menuBtn").onclick=()=>{
+  if(confirm("Return to the main menu? Your identity will be kept on this browser.")){
+    document.getElementById("topTools").style.display="none";
+    gameUI.style.display="none";
+    menu.style.display="flex";
+    if(renderer){
+      renderer.domElement.remove();
+      renderer.dispose();
+      renderer=null;
+      scene=null;
+      started=false;
+    }
+    beep(420,.07);
+  }
+};
+
+// Simple browser-generated classroom music. It does not require an audio file.
+function startMusic(){
+  if(musicOn)return;
+  musicOn=true;
+  document.getElementById("musicToggle").textContent="⏸ STOP MUSIC";
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!window.audioCtx)window.audioCtx=new AC();
+  const a=window.audioCtx;
+  if(a.state==="suspended")a.resume();
+  const notes=[261.63,329.63,392.00,329.63,293.66,349.23,440.00,349.23];
+  let i=0;
+  musicTimer=setInterval(()=>{
+    if(!musicOn)return;
+    const o=a.createOscillator(),g=a.createGain();
+    o.type="sine";o.frequency.value=notes[i++%notes.length];
+    g.gain.setValueAtTime(.018*masterVolume,a.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.45);
+    o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.45);
+  },520);
+}
+function stopMusic(){
+  musicOn=false;
+  document.getElementById("musicToggle").textContent="▶ PLAY MUSIC";
+  if(musicTimer){clearInterval(musicTimer);musicTimer=null}
+}
+document.getElementById("musicToggle").onclick=()=>{
+  if(musicOn)stopMusic();else startMusic();
+};
+
+const form=document.getElementById("chatForm");
+const input=document.getElementById("chatInput");
+const messages=document.getElementById("messages");
+form.addEventListener("submit",e=>{
+  e.preventDefault();
+  const msg=input.value.trim();if(!msg)return;
+  const row=document.createElement("div");row.className="msg";
+  row.innerHTML="<b>"+escapeHTML(username)+":</b> "+escapeHTML(msg);
+  messages.appendChild(row);messages.scrollTop=messages.scrollHeight;
+  input.value="";beep(650,.05);
+});
+function escapeHTML(s){
+ return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+}
+
+const saved=localStorage.getItem("citirizineUser");
+if(saved)nameInput.value=saved;
+</script>
+</body>
+</html>
